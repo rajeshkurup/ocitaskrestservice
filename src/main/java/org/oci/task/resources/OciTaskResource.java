@@ -1,11 +1,13 @@
 package org.oci.task.resources;
 
 import io.dropwizard.hibernate.UnitOfWork;
+import org.oci.task.api.OciTaskServResponse;
 import org.oci.task.core.OciTask;
 import org.oci.task.db.OciTaskDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -24,6 +26,26 @@ public class OciTaskResource {
 
     public OciTaskResource(OciTaskDao ociTaskDao) {
         this.ociTaskDao = ociTaskDao;
+    }
+
+    @OPTIONS
+    @PermitAll
+    public Response options() {
+        return prepareResponse(Response.Status.NO_CONTENT, "");
+    }
+
+    @OPTIONS
+    @Path("/tasks")
+    @PermitAll
+    public Response optionsAll() {
+        return prepareResponse(Response.Status.NO_CONTENT, "");
+    }
+
+    @OPTIONS
+    @Path("/tasks/{id}")
+    @PermitAll
+    public Response optionsId() {
+        return prepareResponse(Response.Status.NO_CONTENT, "");
     }
 
     @POST
@@ -53,7 +75,9 @@ public class OciTaskResource {
     @Path("/tasks")
     public Response listTasks() {
         logger.info("Load Tasks");
-        return Response.ok().entity(ociTaskDao.findAll()).header("Access-Control-Allow-Origin", "*").build();
+        OciTaskServResponse ociResponse = new OciTaskServResponse();
+        ociResponse.setTasks(ociTaskDao.findAll());
+        return prepareResponse(Response.Status.OK, ociResponse);
     }
 
     @GET
@@ -71,6 +95,17 @@ public class OciTaskResource {
     public void deleteTask(@PathParam("id") long id) {
         logger.info("Deleting existing Task - taskId=" + id);
         ociTaskDao.delete(id);
+    }
+
+    private Response prepareResponse(Response.Status httpStatus, Object ociResponse) {
+        return Response.status(httpStatus)
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Headers", "Access-Control-Allow-Origin,Content-Type,Authorization,Content-Length,Accept,Origin")
+                .header("Access-Control-Allow-Credentials", "true")
+                .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH")
+                .header("Access-Control-Max-Age", "1209600")
+                .entity(ociResponse)
+                .build();
     }
 
 }
