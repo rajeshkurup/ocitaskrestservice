@@ -25,7 +25,7 @@ database:
   user: root
 
   # the password
-  password: Kattoor!2005
+  password: xxx
 
 server:
   type: simple
