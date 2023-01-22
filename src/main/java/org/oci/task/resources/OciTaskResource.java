@@ -1,7 +1,6 @@
 package org.oci.task.resources;
 
 import io.dropwizard.hibernate.UnitOfWork;
-import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
 import org.oci.task.core.OciTask;
 import org.oci.task.db.OciTaskDao;
 import org.slf4j.Logger;
@@ -9,18 +8,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
+import javax.ws.rs.core.Response;
 import java.util.Optional;
 
 /**
  * @brief APIs hosted by OCI Task Service to persist and manage Tasks.
  * @author rajeshkurup@live.com
  */
-@CrossOriginResourceSharing(
-    allowAllOrigins = true,
-    allowCredentials = true,
-    allowHeaders = {"X-Requested-With", "Content-Type", "Accept", "Origin", "Authorization"}
-)
 @Path("/v1/ocitaskrestservice")
 public class OciTaskResource {
 
@@ -57,9 +51,9 @@ public class OciTaskResource {
     @UnitOfWork
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/tasks")
-    public List<OciTask> listTasks() {
+    public Response listTasks() {
         logger.info("Load Tasks");
-        return ociTaskDao.findAll();
+        return Response.ok().entity(ociTaskDao.findAll()).header("Access-Control-Allow-Origin", "*").build();
     }
 
     @GET
