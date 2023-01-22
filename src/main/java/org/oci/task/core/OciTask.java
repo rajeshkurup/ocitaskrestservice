@@ -24,12 +24,10 @@ import java.util.Date;
  */
 @Entity
 @Table(name = OciTask.TABLE_NAME)
-@NamedQueries({
-        @javax.persistence.NamedQuery (
-                name = "org.oci.task.core.OciTask.deleteById",
-                query = "DELETE FROM org.oci.task.core.OciTask WHERE ID = :taskId"
-        )
-})
+@NamedQuery(
+    name = "org.oci.task.core.OciTask.deleteById",
+    query = "DELETE FROM org.oci.task.core.OciTask WHERE ID = :taskId"
+)
 public class OciTask {
 
     public static final String TABLE_NAME= "OCI_TASK_REST";

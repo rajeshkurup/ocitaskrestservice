@@ -1,6 +1,7 @@
 package org.oci.task.resources;
 
 import io.dropwizard.hibernate.UnitOfWork;
+import org.apache.cxf.rs.security.cors.CrossOriginResourceSharing;
 import org.oci.task.core.OciTask;
 import org.oci.task.db.OciTaskDao;
 import org.slf4j.Logger;
@@ -15,6 +16,11 @@ import java.util.Optional;
  * @brief APIs hosted by OCI Task Service to persist and manage Tasks.
  * @author rajeshkurup@live.com
  */
+@CrossOriginResourceSharing(
+    allowAllOrigins = true,
+    allowCredentials = true,
+    allowHeaders = {"X-Requested-With", "Content-Type", "Accept", "Origin", "Authorization"}
+)
 @Path("/v1/ocitaskrestservice")
 public class OciTaskResource {
 
