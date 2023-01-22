@@ -60,14 +60,6 @@ public class OciTaskRestServiceApplication extends Application<OciTaskRestServic
                     final Environment environment) {
         final OciTaskDao ociTaskDao = new OciTaskDao(hibernateBundle.getSessionFactory());
         environment.jersey().register(new OciTaskResource(ociTaskDao));
-
-        final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
-
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, "<Headers>");
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "OPTIONS,GET,PUT,POST,DELETE,HEAD,PATCH,");
-
-        cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }
 
 }
