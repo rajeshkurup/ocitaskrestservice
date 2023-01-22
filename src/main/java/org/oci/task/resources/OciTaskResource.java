@@ -1,9 +1,12 @@
 package org.oci.task.resources;
 
 import io.dropwizard.hibernate.UnitOfWork;
+import org.apache.commons.lang3.StringUtils;
 import org.oci.task.api.OciTaskServResponse;
 import org.oci.task.core.OciTask;
 import org.oci.task.db.OciTaskDao;
+import org.oci.task.error.OciError;
+import org.oci.task.error.OciErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +14,8 @@ import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -53,9 +58,29 @@ public class OciTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/tasks")
-    public OciTask createTask(OciTask ociTask) {
+    public Response createTask(OciTask ociTask) {
         logger.info("Creating new Task");
-        return ociTaskDao.save(ociTask);
+        OciTaskServResponse ociResponse = new OciTaskServResponse();
+        Response.Status httpStatus = Response.Status.OK;
+
+        if(ociTask != null && StringUtils.isNotBlank(ociTask.getTitle())) {
+            try {
+                OciTask task = ociTaskDao.save(ociTask);
+                ociResponse.setTaskId(task.getId());
+            }
+            catch(Exception ex) {
+                httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
+                ociResponse.setError(new OciError(OciErrorCode.INTERNAL_ERROR, ex.getMessage()));
+                logger.error(ex.toString() + " - Stacktrace: " + Arrays.asList(ex.getStackTrace()).toString());
+            }
+        }
+        else {
+            httpStatus = Response.Status.BAD_REQUEST;
+            ociResponse.setError(new OciError(OciErrorCode.INVALID_ARGUMENT, "Task Title cannot be blank!"));
+            logger.error("Task Title cannot be blank!");
+        }
+
+        return prepareResponse(httpStatus, ociResponse);
     }
 
     @PUT
@@ -63,10 +88,35 @@ public class OciTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/tasks/{id}")
-    public OciTask updateTask(@PathParam("id") long id, OciTask ociTask) {
+    public Response updateTask(@PathParam("id") long id, OciTask ociTask) {
         logger.info("Updating existing Task - taskId=" + id);
-        ociTask.setId(id);
-        return ociTaskDao.save(ociTask);
+        OciTaskServResponse ociResponse = new OciTaskServResponse();
+        Response.Status httpStatus = Response.Status.OK;
+
+        if(id != 0 && ociTask != null && StringUtils.isNotBlank(ociTask.getTitle())) {
+            ociTask.setId(id);
+            try {
+                OciTask task = ociTaskDao.save(ociTask);
+                ociResponse.setTaskId(task.getId());
+            }
+            catch(NoSuchElementException ex) {
+                httpStatus = Response.Status.BAD_REQUEST;
+                ociResponse.setError(new OciError(OciErrorCode.INVALID_ARGUMENT, ex.getMessage()));
+                logger.error(ex.toString() + " - Stacktrace: " + Arrays.asList(ex.getStackTrace()).toString());
+            }
+            catch(Exception ex) {
+                httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
+                ociResponse.setError(new OciError(OciErrorCode.INTERNAL_ERROR, ex.getMessage()));
+                logger.error(ex.toString() + " - Stacktrace: " + Arrays.asList(ex.getStackTrace()).toString());
+            }
+        }
+        else {
+            httpStatus = Response.Status.BAD_REQUEST;
+            ociResponse.setError(new OciError(OciErrorCode.INVALID_ARGUMENT, "Id cannot be zero and Task Title cannot be blank!"));
+            logger.error("Id cannot be zero and Task Title cannot be blank!");
+        }
+
+        return prepareResponse(httpStatus, ociResponse);
     }
 
     @GET
@@ -76,25 +126,65 @@ public class OciTaskResource {
     public Response listTasks() {
         logger.info("Load Tasks");
         OciTaskServResponse ociResponse = new OciTaskServResponse();
-        ociResponse.setTasks(ociTaskDao.findAll());
-        return prepareResponse(Response.Status.OK, ociResponse);
+        Response.Status httpStatus = Response.Status.OK;
+
+        try {
+            ociResponse.setTasks(ociTaskDao.findAll());
+        }
+        catch(Exception ex) {
+            httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
+            ociResponse.setError(new OciError(OciErrorCode.INTERNAL_ERROR, ex.getMessage()));
+            logger.error(ex.toString() + " - Stacktrace: " + Arrays.asList(ex.getStackTrace()).toString());
+        }
+
+        return prepareResponse(httpStatus, ociResponse);
     }
 
     @GET
     @UnitOfWork
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/tasks/{id}")
-    public Optional<OciTask> getTask(@PathParam("id") long id) {
+    public Response getTask(@PathParam("id") long id) {
         logger.info("Getting existing Task - taskId=" + id);
-        return ociTaskDao.findById(id);
+        OciTaskServResponse ociResponse = new OciTaskServResponse();
+        Response.Status httpStatus = Response.Status.OK;
+
+        try {
+            Optional<OciTask> task = ociTaskDao.findById(id);
+            ociResponse.setTask(task.isPresent() ? task.get() : null);
+        }
+        catch(NoSuchElementException ex) {
+            httpStatus = Response.Status.NOT_FOUND;
+            ociResponse.setError(new OciError(OciErrorCode.NO_DATA_FOUND, ex.getMessage()));
+            logger.error(ex.toString() + " - Stacktrace: " + Arrays.asList(ex.getStackTrace()).toString());
+        }
+        catch(Exception ex) {
+            httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
+            ociResponse.setError(new OciError(OciErrorCode.INTERNAL_ERROR, ex.getMessage()));
+            logger.error(ex.toString() + " - Stacktrace: " + Arrays.asList(ex.getStackTrace()).toString());
+        }
+
+        return prepareResponse(httpStatus, ociResponse);
     }
 
     @DELETE
     @UnitOfWork
     @Path("/tasks/{id}")
-    public void deleteTask(@PathParam("id") long id) {
+    public Response deleteTask(@PathParam("id") long id) {
         logger.info("Deleting existing Task - taskId=" + id);
-        ociTaskDao.delete(id);
+        OciTaskServResponse ociResponse = new OciTaskServResponse();
+        Response.Status httpStatus = Response.Status.OK;
+
+        try {
+            ociTaskDao.delete(id);
+        }
+        catch(Exception ex) {
+            httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
+            ociResponse.setError(new OciError(OciErrorCode.INTERNAL_ERROR, ex.getMessage()));
+            logger.error(ex.toString() + " - Stacktrace: " + Arrays.asList(ex.getStackTrace()).toString());
+        }
+
+        return prepareResponse(httpStatus, ociResponse);
     }
 
     private Response prepareResponse(Response.Status httpStatus, Object ociResponse) {
