@@ -59,7 +59,10 @@ public class OciTaskRestServiceApplication extends Application<OciTaskRestServic
     public void run(final OciTaskRestServiceConfiguration configuration,
                     final Environment environment) {
         final OciTaskDao ociTaskDao = new OciTaskDao(hibernateBundle.getSessionFactory());
+
         environment.jersey().register(new OciTaskResource(ociTaskDao));
+
+        environment.jersey().register(OciTaskRestServiceCorsFilter.class);
     }
 
 }
