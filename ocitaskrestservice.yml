@@ -22,7 +22,7 @@ database:
   checkConnectionOnBorrow: true
 
   # the username
-  user: root
+  user: ocitasksystem
 
   # the password
   password: xxx
