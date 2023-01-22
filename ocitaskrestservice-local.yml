@@ -29,7 +29,7 @@ database:
 
 server:
   type: simple
-  allowedMethods: GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH
+  allowedMethods: "GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH"
   connector:
     type: http
     port: 8080
