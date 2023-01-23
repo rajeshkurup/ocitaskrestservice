@@ -12,6 +12,10 @@ import org.oci.task.core.OciTask;
 import org.oci.task.db.OciTaskDao;
 import org.oci.task.resources.OciTaskResource;
 
+/**
+ * @brief Entry point for OCI Task REST Service.
+ * @author rajeshkurup@live.com
+ */
 public class OciTaskRestServiceApplication extends Application<OciTaskRestServiceConfiguration> {
 
     public static void main(final String[] args) throws Exception {

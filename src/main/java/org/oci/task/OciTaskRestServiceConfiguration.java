@@ -7,6 +7,10 @@ import io.dropwizard.db.DataSourceFactory;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+/**
+ * @brief Configuration for OCI Task REST Service.
+ * @author rajeshkurup@live.com
+ */
 public class OciTaskRestServiceConfiguration extends Configuration {
 
     @Valid
