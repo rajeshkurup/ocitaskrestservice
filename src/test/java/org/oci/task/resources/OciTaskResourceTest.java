@@ -83,6 +83,16 @@ public class OciTaskResourceTest {
     }
 
     @Test
+    public void testGetTaskFailedInvalidId() {
+        Response response = resource.getTask(0L);
+
+        OciTaskServResponse apiResp = (OciTaskServResponse)response.getEntity();
+
+        Assertions.assertNotNull(apiResp.getError());
+        Assertions.assertEquals(OciErrorCode.INVALID_ARGUMENT, apiResp.getError().getErrorCode());
+    }
+
+    @Test
     public void testGetTaskFailedNotFound() {
         Mockito.when(ociTaskDaoMock.findById(Mockito.eq(1001L))).thenThrow(new NoSuchElementException("failed"));
 

@@ -67,6 +67,7 @@ public class OciTaskResource {
             try {
                 OciTask task = ociTaskDao.save(ociTask);
                 ociResponse.setTaskId(task.getId());
+                httpStatus = Response.Status.CREATED;
             }
             catch(Exception ex) {
                 httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
@@ -149,19 +150,24 @@ public class OciTaskResource {
         OciTaskServResponse ociResponse = new OciTaskServResponse();
         Response.Status httpStatus = Response.Status.OK;
 
-        try {
-            Optional<OciTask> task = ociTaskDao.findById(id);
-            ociResponse.setTask(task.isPresent() ? task.get() : null);
+        if(id != 0) {
+            try {
+                Optional<OciTask> task = ociTaskDao.findById(id);
+                ociResponse.setTask(task.isPresent() ? task.get() : null);
+            } catch(NoSuchElementException ex) {
+                httpStatus = Response.Status.NOT_FOUND;
+                ociResponse.setError(new OciError(OciErrorCode.NO_DATA_FOUND, ex.getMessage()));
+                logger.error(ex.toString() + " - Stacktrace: " + Arrays.asList(ex.getStackTrace()).toString());
+            } catch(Exception ex) {
+                httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
+                ociResponse.setError(new OciError(OciErrorCode.INTERNAL_ERROR, ex.getMessage()));
+                logger.error(ex.toString() + " - Stacktrace: " + Arrays.asList(ex.getStackTrace()).toString());
+            }
         }
-        catch(NoSuchElementException ex) {
-            httpStatus = Response.Status.NOT_FOUND;
-            ociResponse.setError(new OciError(OciErrorCode.NO_DATA_FOUND, ex.getMessage()));
-            logger.error(ex.toString() + " - Stacktrace: " + Arrays.asList(ex.getStackTrace()).toString());
-        }
-        catch(Exception ex) {
-            httpStatus = Response.Status.INTERNAL_SERVER_ERROR;
-            ociResponse.setError(new OciError(OciErrorCode.INTERNAL_ERROR, ex.getMessage()));
-            logger.error(ex.toString() + " - Stacktrace: " + Arrays.asList(ex.getStackTrace()).toString());
+        else {
+            httpStatus = Response.Status.BAD_REQUEST;
+            ociResponse.setError(new OciError(OciErrorCode.INVALID_ARGUMENT, "Id cannot be zero!"));
+            logger.error("Id cannot be zero!");
         }
 
         return prepareResponse(httpStatus, ociResponse);
