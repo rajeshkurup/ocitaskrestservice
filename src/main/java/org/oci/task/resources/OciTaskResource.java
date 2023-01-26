@@ -2,6 +2,7 @@ package org.oci.task.resources;
 
 import io.dropwizard.hibernate.UnitOfWork;
 import org.apache.commons.lang3.StringUtils;
+import org.oci.task.api.OciTaskServRequest;
 import org.oci.task.api.OciTaskServResponse;
 import org.oci.task.core.OciTask;
 import org.oci.task.db.OciTaskDao;
@@ -58,14 +59,22 @@ public class OciTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/tasks")
-    public Response createTask(OciTask ociTask) {
+    public Response createTask(OciTaskServRequest ociTask) {
         logger.info("Creating new Task");
         OciTaskServResponse ociResponse = new OciTaskServResponse();
         Response.Status httpStatus = Response.Status.OK;
 
         if(ociTask != null && StringUtils.isNotBlank(ociTask.getTitle())) {
+            OciTask srcTask = new OciTask();
+            srcTask.setTitle(ociTask.getTitle());
+            srcTask.setCompleted(ociTask.isCompleted());
+            srcTask.setDescription(ociTask.getDescription());
+            srcTask.setPriority(ociTask.getPriority());
+            srcTask.setDueDate(ociTask.getDueDate());
+            srcTask.setStartDate(ociTask.getStartDate());
+
             try {
-                OciTask task = ociTaskDao.save(ociTask);
+                OciTask task = ociTaskDao.save(srcTask);
                 ociResponse.setTaskId(task.getId());
                 httpStatus = Response.Status.CREATED;
             }
@@ -89,15 +98,22 @@ public class OciTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/tasks/{id}")
-    public Response updateTask(@PathParam("id") long id, OciTask ociTask) {
+    public Response updateTask(@PathParam("id") long id, OciTaskServRequest ociTask) {
         logger.info("Updating existing Task - taskId=" + id);
         OciTaskServResponse ociResponse = new OciTaskServResponse();
         Response.Status httpStatus = Response.Status.OK;
 
         if(id != 0 && ociTask != null && StringUtils.isNotBlank(ociTask.getTitle())) {
-            ociTask.setId(id);
+            OciTask srcTask = new OciTask();
+            srcTask.setTitle(ociTask.getTitle());
+            srcTask.setCompleted(ociTask.isCompleted());
+            srcTask.setDescription(ociTask.getDescription());
+            srcTask.setPriority(ociTask.getPriority());
+            srcTask.setDueDate(ociTask.getDueDate());
+            srcTask.setStartDate(ociTask.getStartDate());
+            srcTask.setId(id);
             try {
-                OciTask task = ociTaskDao.save(ociTask);
+                OciTask task = ociTaskDao.save(srcTask);
                 ociResponse.setTaskId(task.getId());
             }
             catch(NoSuchElementException ex) {

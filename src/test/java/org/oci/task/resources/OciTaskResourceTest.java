@@ -2,10 +2,10 @@ package org.oci.task.resources;
 
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.oci.task.api.OciTaskServRequest;
 import org.oci.task.api.OciTaskServResponse;
 import org.oci.task.core.OciTask;
 import org.oci.task.db.OciTaskDao;
@@ -153,9 +153,12 @@ public class OciTaskResourceTest {
         task.setId(1001L);
         task.setTitle("test task");
 
+        OciTaskServRequest ociTask = new OciTaskServRequest();
+        ociTask.setTitle("test task");
+
         Mockito.when(ociTaskDaoMock.save(Mockito.any(OciTask.class))).thenReturn(task);
 
-        Response response = resource.updateTask(1001L, task);
+        Response response = resource.updateTask(1001L, ociTask);
 
         OciTaskServResponse apiResp = (OciTaskServResponse)response.getEntity();
 
@@ -167,7 +170,7 @@ public class OciTaskResourceTest {
 
     @Test
     public void testUpdateTaskFailedInvalidId() {
-        Response response = resource.updateTask(0L, new OciTask());
+        Response response = resource.updateTask(0L, new OciTaskServRequest());
 
         OciTaskServResponse apiResp = (OciTaskServResponse)response.getEntity();
 
@@ -181,9 +184,12 @@ public class OciTaskResourceTest {
         task.setId(1001L);
         task.setTitle("test task");
 
+        OciTaskServRequest ociTask = new OciTaskServRequest();
+        ociTask.setTitle("test task");
+
         Mockito.when(ociTaskDaoMock.save(Mockito.any(OciTask.class))).thenThrow(new NoSuchElementException("failed"));
 
-        Response response = resource.updateTask(1001L, task);
+        Response response = resource.updateTask(1001L, ociTask);
 
         OciTaskServResponse apiResp = (OciTaskServResponse)response.getEntity();
 
@@ -199,9 +205,12 @@ public class OciTaskResourceTest {
         task.setId(1001L);
         task.setTitle("test task");
 
+        OciTaskServRequest ociTask = new OciTaskServRequest();
+        ociTask.setTitle("test task");
+
         Mockito.when(ociTaskDaoMock.save(Mockito.any(OciTask.class))).thenThrow(new RuntimeException("failed"));
 
-        Response response = resource.updateTask(1001L, task);
+        Response response = resource.updateTask(1001L, ociTask);
 
         OciTaskServResponse apiResp = (OciTaskServResponse)response.getEntity();
 
@@ -217,9 +226,12 @@ public class OciTaskResourceTest {
         task.setId(1001L);
         task.setTitle("test task");
 
+        OciTaskServRequest ociTask = new OciTaskServRequest();
+        ociTask.setTitle("test task");
+
         Mockito.when(ociTaskDaoMock.save(Mockito.any(OciTask.class))).thenReturn(task);
 
-        Response response = resource.createTask(task);
+        Response response = resource.createTask(ociTask);
 
         OciTaskServResponse apiResp = (OciTaskServResponse)response.getEntity();
 
@@ -231,7 +243,7 @@ public class OciTaskResourceTest {
 
     @Test
     public void testCreateTaskFailedInvalidTask() {
-        Response response = resource.createTask(new OciTask());
+        Response response = resource.createTask(new OciTaskServRequest());
 
         OciTaskServResponse apiResp = (OciTaskServResponse)response.getEntity();
 
@@ -245,9 +257,12 @@ public class OciTaskResourceTest {
         task.setId(1001L);
         task.setTitle("test task");
 
+        OciTaskServRequest ociTask = new OciTaskServRequest();
+        ociTask.setTitle("test task");
+
         Mockito.when(ociTaskDaoMock.save(Mockito.any(OciTask.class))).thenThrow(new RuntimeException("failed"));
 
-        Response response = resource.createTask(task);
+        Response response = resource.createTask(ociTask);
 
         OciTaskServResponse apiResp = (OciTaskServResponse)response.getEntity();
 
