@@ -13,10 +13,10 @@ OCI Task Service REST APIs to persist and manage OCI Tasks.
 
 1. Log on to [OCI Cloud](https://cloud.oracle.com).
 2. Create a Compartment `ocitask-compartment` for OCI Task System.
-3. Create Container Registry for `ocitaskserv` (select `ocitask-compartment` Compartment).
+3. Create Container Registry for `ocitaskrestserv` (select `ocitask-compartment` Compartment).
 4. Create VCN and Subnet (select `ocitask-compartment` Compartment).
 5. Add following Ingress Rules in default Security List of the VCN Subnet.
-6. Rule for `ocitaskserv`: Allow TCP Traffic for IP range `0.0.0.0/0` for destination port `8081` (all Source Ports).
+6. Rule for `ocitaskrestserv`: Allow TCP Traffic for IP range `0.0.0.0/0` for destination port `8080` (all Source Ports).
 7. Rule for `SonarQube`: Allow TCP Traffic for IP range `0.0.0.0/0` for destination port `9000` (all Source Ports).
 8. Rule for `MySQL`: Allow TCP Traffic for IP range `0.0.0.0/0` for destination port `3306` (all Source Ports).
 9. Rule for `ocitasknodeweb`: Allow TCP Traffic for IP range `0.0.0.0/0` for destination port `3000` (all Source Ports).
@@ -32,7 +32,7 @@ OCI Task Service REST APIs to persist and manage OCI Tasks.
 7. Configure Git Repository.
 8. Create Build Job.
 9. Add Steps like Maven Build, Maven Verify and Maven Publish Reports.
-10. Add Steps like Docker Login, Docker Build Image and Docker Push Image. Use Docker Image name like `sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskserv:latest`.
+10. Add Steps like Docker Login, Docker Build Image and Docker Push Image. Use Docker Image name like `sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskrestserv:latest`.
 
 ## Deploy Project Using OCI
 
@@ -42,7 +42,7 @@ OCI Task Service REST APIs to persist and manage OCI Tasks.
 4. Copy and Save Public IP of the MySQL Kubernetes Cluster.
 5. [Deploy SonarQube into OCI Kubernetes Cluster](https://docs.sonarqube.org/9.6/setup-and-upgrade/deploy-on-kubernetes/deploy-sonarqube-on-kubernetes/).
 6. Copy and Save Public IP of the SonarQube Kubernetes Cluster.
-7. Deploy `sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskserv:latest` Docker Image into [Oracle Managed Kubernetes Cluster](https://docs.oracle.com/en/solutions/monitor-applications-on-kubernetes/deploy-application-oracle-managed-kubernetes-cluster.html#GUID-B2D9C6EC-DCDF-4BB7-B9C1-3493DA03A3FF).
+7. Deploy `sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskrestserv:latest` Docker Image into [Oracle Managed Kubernetes Cluster](https://docs.oracle.com/en/solutions/monitor-applications-on-kubernetes/deploy-application-oracle-managed-kubernetes-cluster.html#GUID-B2D9C6EC-DCDF-4BB7-B9C1-3493DA03A3FF).
 8. Copy and Save Public IP of the Kubernetes Cluster.
 
 ## Build Project Manually
@@ -57,8 +57,8 @@ Run `mvn clean verify -P all-tests` from root folder to run all Unit Tests.
 
 #### Functional Testing
 
-1. Clone into [Functional Test Project](https://github.com/rajeshkurup/ocitaskserv-functional-test) for OCI Task Service.
-2. Update Test Environment for OCI Task Service [here](https://github.com/rajeshkurup/ocitaskserv-functional-test/blob/main/src/test/java/org/oci/task/api/OciTaskApiFunctionalTest.java#L29).
+1. Clone into [Functional Test Project](https://github.com/rajeshkurup/ocitaskrestserv-functional-test) for OCI Task Service.
+2. Update Test Environment for OCI Task Service [here](https://github.com/rajeshkurup/ocitaskrestserv-functional-test/blob/main/src/test/java/org/oci/task/api/OciTaskApiFunctionalTest.java#L29).
 3. Run `mvn clean install` from root folder. 
 4. Run `mvn clean verify -P all-tests` from root folder to run all Functional Tests.
 
@@ -68,12 +68,12 @@ Run `mvn sonar:sonar -Dsonar.login=<User Token to access SonarQube Server> -Dson
 
 ### View Unit Test Coverage
 
-Visit SonarQube Server and find `org.oci.task:ocitaskserv` coverage report.
-For example, `<SonarQube URL>/dashboard?id=org.oci.task%3Aocitaskserv`.
+Visit SonarQube Server and find `org.oci.task:ocitaskrestserv` coverage report.
+For example, `<SonarQube URL>/dashboard?id=org.oci.task%3Aocitaskrestserv`.
 
 ### Build Docker Image
 
-Run `docker build . -t sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskserv:latest` from root folder.
+Run `docker build . -t sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskrestserv:latest` from root folder.
 
 ### Publish Docker Image
 
@@ -83,7 +83,7 @@ Run `docker login sjc.ocir.io` from root folder. Provide DockerHub User Id and P
 
 #### Publish Image into DockerHub
 
-Run `docker push sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskserv:latest` from root folder.
+Run `docker push sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskrestserv:latest` from root folder.
 
 ## Deploy Project Manually
 
@@ -107,7 +107,7 @@ Run `docker push sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskse
 3. Select Single Processor with 16GB Memory. 
 4. Save Public and Private Key files to enable SSH into the VM Instance.
 5. Select VCN and Subnet from `ocitask-compartment` Compartment.
-6. Create VM Instance `ocitaskserv-host-1`.
+6. Create VM Instance `ocitaskrestserv-host-1`.
 7. Copy and Save Public IP.
 8. SSH into new VM Instance `ssh -i <private key file> opc@<Public IP>`.
 9. [Deploy Docker into the VM Instance](https://oracle-base.com/articles/linux/docker-install-docker-on-oracle-linux-ol8).
@@ -127,11 +127,11 @@ Run `docker push sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskse
 
 ### Load Docker Image for Deployment
 
-Run `docker pull sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskserv:latest` on Host where Docker Image is going to run.
+Run `docker pull sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskrestserv:latest` on Host where Docker Image is going to run.
 
 ### Run Docker Container on a Host
 
-Run `docker run -d -p 8081:8081 --restart always --name ocitaskserv_latest sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskserv:latest` on Host where Docker Image is loaded.
+Run `docker run -d -p 8080:8080 --restart always --name ocitaskrestserv_latest sjc.ocir.io/<Namespace of the OCI Container Registry>/ocitaskrestserv:latest` on Host where Docker Image is loaded.
 
 ### Verify Docker Container
 
@@ -139,29 +139,29 @@ Run `docker ps --all` on Host where Docker Image is deployed.
 
 ### Stop Docker Container
 
-Run `docker stop ocitaskserv_latest` on Host where Docker Image is deployed.
+Run `docker stop ocitaskrestserv_latest` on Host where Docker Image is deployed.
 
 ### Remove Loaded Docker Image from Host
 
-Run `docker rm ocitaskserv_latest` on Host where Docker Image is loaded.
+Run `docker rm ocitaskrestserv_latest` on Host where Docker Image is loaded.
 
 ## Access OCI Task REST APIs
 
-- Use swagger for API Documentation: `http://<Host Name or IP where ocitaskserv_latest Docker Container in Running>:8081/swagger-ui/index.html`
-- Use Postman or Curl to access `ocitaskserv_latest` Docker Container.
+- Use swagger for API Documentation: `http://<Host Name or IP where ocitaskrestserv_latest Docker Container in Running>:8080/application/swagger`
+- Use Postman or Curl to access `ocitaskrestserv_latest` Docker Container.
 
 ### Load All Tasks
 
-GET `http://<Host Name or IP where ocitaskserv_latest Docker Container in Running>:8081/v1/ocitaskserv/tasks`
+GET `http://<Host Name or IP where ocitaskrestserv_latest Docker Container in Running>:8080/application/v1/ocitaskrestservice/tasks`
 
 ### Load a Task
 
-- GET `http://<Host Name where ocitaskserv_latest Docker Container in Running>:8081/v1/ocitaskserv/tasks/{id}`
+- GET `http://<Host Name where ocitaskrestserv_latest Docker Container in Running>:8080/application/v1/ocitaskrestservice/tasks/{id}`
 - Path Variable: `id` (Task Identifier as Number)
 
 ### Create a Task
 
-- POST `http://<Host Name where ocitaskserv_latest Docker Container in Running>:8081/v1/ocitaskserv/tasks`
+- POST `http://<Host Name where ocitaskrestserv_latest Docker Container in Running>:8080/application/v1/ocitaskrestservice/tasks`
 - Sample Post Body:
 ```
 {
@@ -176,7 +176,7 @@ GET `http://<Host Name or IP where ocitaskserv_latest Docker Container in Runnin
 
 ### Update a Task
 
-- PUT `http://<Host Name where ocitaskserv_latest Docker Container in Running>:8081/v1/ocitaskserv/tasks/{id}`
+- PUT `http://<Host Name where ocitaskrestserv_latest Docker Container in Running>:8080/application/v1/ocitaskrestservice/tasks/{id}`
 - Path Variable: `id` (Task Identifier as Number)
 - Sample Put Body:
 ```
@@ -193,5 +193,5 @@ GET `http://<Host Name or IP where ocitaskserv_latest Docker Container in Runnin
 
 ### Delete a Task
 
-- DELETE `http://<Host Name where ocitaskserv_latest Docker Container in Running>:8081/v1/ocitaskserv/tasks/{id}`
+- DELETE `http://<Host Name where ocitaskrestserv_latest Docker Container in Running>:8080/application/v1/ocitaskrestservice/tasks/{id}`
 - Path Variable: `id` (Task Identifier as Number)
