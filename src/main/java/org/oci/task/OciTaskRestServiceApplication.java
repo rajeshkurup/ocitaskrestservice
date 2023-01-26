@@ -8,6 +8,8 @@ import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.oci.task.core.OciTask;
 import org.oci.task.db.OciTaskDao;
 import org.oci.task.resources.OciTaskResource;
@@ -50,6 +52,13 @@ public class OciTaskRestServiceApplication extends Application<OciTaskRestServic
             @Override
             public DataSourceFactory getDataSourceFactory(OciTaskRestServiceConfiguration configuration) {
                 return configuration.getDatabase();
+            }
+        });
+
+        bootstrap.addBundle(new SwaggerBundle<OciTaskRestServiceConfiguration>() {
+            @Override
+            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(OciTaskRestServiceConfiguration configuration) {
+                return configuration.swaggerBundleConfiguration;
             }
         });
     }

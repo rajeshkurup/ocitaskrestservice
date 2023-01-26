@@ -89,6 +89,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>com.smoketurner</groupId>
+            <artifactId>dropwizard-swagger</artifactId>
+            <version>2.1.4-1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -174,27 +179,28 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.8</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>3.4.2</version>
-                <configuration>
-                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.4.1</version>
-            </plugin>
-        </plugins>
-    </reporting>
     <profiles>
         <profile>
             <id>java11+</id>
@@ -202,10 +208,6 @@
                 <jdk>[11,)</jdk>
             </activation>
             <properties>
-                <!--
-                Workaround for "javadoc: error - The code being documented uses modules but the packages
-                defined in https://docs.oracle.com/javase/8/docs/api/ are in the unnamed module."
-                -->
                 <maven.javadoc.skip>true</maven.javadoc.skip>
             </properties>
         </profile>
